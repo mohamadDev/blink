@@ -16,7 +16,7 @@ The REST API documentation can be found on [help.bl.ink](https://help.bl.ink). T
 
 ```sh
 # install from PyPI
-pip install --pre blink
+pip install blink
 ```
 
 ## Usage
