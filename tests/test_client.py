@@ -23,9 +23,7 @@ from pydantic import ValidationError
 
 from blink import Blink, AsyncBlink, APIResponseValidationError
 from blink._types import Omit
-from blink._utils import maybe_transform
 from blink._models import BaseModel, FinalRequestOptions
-from blink._constants import RAW_RESPONSE_HEADER
 from blink._exceptions import APIStatusError, APITimeoutError, APIResponseValidationError
 from blink._base_client import (
     DEFAULT_TIMEOUT,
@@ -35,7 +33,6 @@ from blink._base_client import (
     DefaultAsyncHttpxClient,
     make_request_options,
 )
-from blink.types.validate_login_validate_params import ValidateLoginValidateParams
 
 from .utils import update_env
 
@@ -675,42 +672,25 @@ class TestBlink:
 
     @mock.patch("blink._base_client.BaseClient._calculate_retry_timeout", _low_retry_timeout)
     @pytest.mark.respx(base_url=base_url)
-    def test_retrying_timeout_errors_doesnt_leak(self, respx_mock: MockRouter) -> None:
+    def test_retrying_timeout_errors_doesnt_leak(self, respx_mock: MockRouter, client: Blink) -> None:
         respx_mock.post("/validate_login").mock(side_effect=httpx.TimeoutException("Test timeout error"))
 
         with pytest.raises(APITimeoutError):
-            self.client.post(
-                "/validate_login",
-                body=cast(
-                    object,
-                    maybe_transform(
-                        dict(email="bud@smartlinker.email", password="password"), ValidateLoginValidateParams
-                    ),
-                ),
-                cast_to=httpx.Response,
-                options={"headers": {RAW_RESPONSE_HEADER: "stream"}},
-            )
+            client.validate_login.with_streaming_response.validate(
+                email="bud@smartlinker.email", password="password"
+            ).__enter__()
 
         assert _get_open_connections(self.client) == 0
 
     @mock.patch("blink._base_client.BaseClient._calculate_retry_timeout", _low_retry_timeout)
     @pytest.mark.respx(base_url=base_url)
-    def test_retrying_status_errors_doesnt_leak(self, respx_mock: MockRouter) -> None:
+    def test_retrying_status_errors_doesnt_leak(self, respx_mock: MockRouter, client: Blink) -> None:
         respx_mock.post("/validate_login").mock(return_value=httpx.Response(500))
 
         with pytest.raises(APIStatusError):
-            self.client.post(
-                "/validate_login",
-                body=cast(
-                    object,
-                    maybe_transform(
-                        dict(email="bud@smartlinker.email", password="password"), ValidateLoginValidateParams
-                    ),
-                ),
-                cast_to=httpx.Response,
-                options={"headers": {RAW_RESPONSE_HEADER: "stream"}},
-            )
-
+            client.validate_login.with_streaming_response.validate(
+                email="bud@smartlinker.email", password="password"
+            ).__enter__()
         assert _get_open_connections(self.client) == 0
 
     @pytest.mark.parametrize("failures_before_success", [0, 2, 4])
@@ -1463,42 +1443,25 @@ class TestAsyncBlink:
 
     @mock.patch("blink._base_client.BaseClient._calculate_retry_timeout", _low_retry_timeout)
     @pytest.mark.respx(base_url=base_url)
-    async def test_retrying_timeout_errors_doesnt_leak(self, respx_mock: MockRouter) -> None:
+    async def test_retrying_timeout_errors_doesnt_leak(self, respx_mock: MockRouter, async_client: AsyncBlink) -> None:
         respx_mock.post("/validate_login").mock(side_effect=httpx.TimeoutException("Test timeout error"))
 
         with pytest.raises(APITimeoutError):
-            await self.client.post(
-                "/validate_login",
-                body=cast(
-                    object,
-                    maybe_transform(
-                        dict(email="bud@smartlinker.email", password="password"), ValidateLoginValidateParams
-                    ),
-                ),
-                cast_to=httpx.Response,
-                options={"headers": {RAW_RESPONSE_HEADER: "stream"}},
-            )
+            await async_client.validate_login.with_streaming_response.validate(
+                email="bud@smartlinker.email", password="password"
+            ).__aenter__()
 
         assert _get_open_connections(self.client) == 0
 
     @mock.patch("blink._base_client.BaseClient._calculate_retry_timeout", _low_retry_timeout)
     @pytest.mark.respx(base_url=base_url)
-    async def test_retrying_status_errors_doesnt_leak(self, respx_mock: MockRouter) -> None:
+    async def test_retrying_status_errors_doesnt_leak(self, respx_mock: MockRouter, async_client: AsyncBlink) -> None:
         respx_mock.post("/validate_login").mock(return_value=httpx.Response(500))
 
         with pytest.raises(APIStatusError):
-            await self.client.post(
-                "/validate_login",
-                body=cast(
-                    object,
-                    maybe_transform(
-                        dict(email="bud@smartlinker.email", password="password"), ValidateLoginValidateParams
-                    ),
-                ),
-                cast_to=httpx.Response,
-                options={"headers": {RAW_RESPONSE_HEADER: "stream"}},
-            )
-
+            await async_client.validate_login.with_streaming_response.validate(
+                email="bud@smartlinker.email", password="password"
+            ).__aenter__()
         assert _get_open_connections(self.client) == 0
 
     @pytest.mark.parametrize("failures_before_success", [0, 2, 4])
