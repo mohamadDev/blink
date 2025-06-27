@@ -1,6 +1,6 @@
 [project]
 name = "blink"
-version = "0.0.1-alpha.0"
+version = "1.0.0"
 description = "The official Python library for the blink API"
 dynamic = ["readme"]
 license = "Apache-2.0"
@@ -34,9 +34,11 @@ classifiers = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/stainless-sdks/blink-python"
-Repository = "https://github.com/stainless-sdks/blink-python"
+Homepage = "https://github.com/mohamadDev/blink"
+Repository = "https://github.com/mohamadDev/blink"
 
+[project.optional-dependencies]
+aiohttp = ["aiohttp", "httpx_aiohttp>=0.1.6"]
 
 [tool.rye]
 managed = true
@@ -54,6 +56,7 @@ dev-dependencies = [
     "importlib-metadata>=6.7.0",
     "rich>=13.7.1",
     "nest_asyncio==1.6.0",
+    "pytest-xdist>=3.6.1",
 ]
 
 [tool.rye.scripts]
@@ -121,11 +124,11 @@ path = "README.md"
 [[tool.hatch.metadata.hooks.fancy-pypi-readme.substitutions]]
 # replace relative links with absolute links
 pattern = '\[(.+?)\]\(((?!https?://)\S+?)\)'
-replacement = '[\1](https://github.com/stainless-sdks/blink-python/tree/main/\g<2>)'
+replacement = '[\1](https://github.com/mohamadDev/blink/tree/main/\g<2>)'
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-addopts = "--tb=short"
+addopts = "--tb=short -n auto"
 xfail_strict = true
 asyncio_mode = "auto"
 asyncio_default_fixture_loop_scope = "session"
