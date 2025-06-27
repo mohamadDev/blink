@@ -16,7 +16,7 @@ The REST API documentation can be found on [help.bl.ink](https://help.bl.ink). T
 
 ```sh
 # install from PyPI
-pip install --pre blink
+pip install blink
 ```
 
 ## Usage
@@ -67,7 +67,7 @@ You can enable this by installing `aiohttp`:
 
 ```sh
 # install from PyPI
-pip install --pre blink[aiohttp]
+pip install blink[aiohttp]
 ```
 
 Then you can enable it by instantiating the client with `http_client=DefaultAioHttpClient()`:
